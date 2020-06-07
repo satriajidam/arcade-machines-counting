@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strings"
 	"testing"
 	"time"
 )
@@ -269,9 +270,61 @@ func TestIsOverlapping(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := tt.p1.isOverlapping(tt.p2)
+			got := tt.p1.IsOverlapping(tt.p2)
 			if got != tt.want {
-				t.Errorf("p1.isOverlapping(%v) got: %v, want: %v", tt.p2, got, tt.want)
+				t.Errorf("p1.IsOverlapping(%v) got: %v, want: %v", tt.p2, got, tt.want)
+			}
+		})
+	}
+}
+
+func TestCountArcadeMachines(t *testing.T) {
+	// To simplify declaring the inputs for the test case, this test case
+	// works as an integration testing by calling toPlayTime() to convert hhmm string
+	// into PlayTime type.
+	tests := []struct {
+		name   string
+		inputs []string
+		want   int
+	}{
+		{
+			name: "case1",
+			inputs: []string{
+				"900 910", "940 1200", "950 1120",
+				"1100 1130", "1300 1400", "1350 1420",
+			},
+			want: 3,
+		},
+		{
+			name: "case2",
+			inputs: []string{
+				"800 900", "830 1000", "845 920", "900 1000",
+				"1100 1130", "1200 1300", "1245 1330", "1230 1400",
+			},
+			want: 4,
+		},
+		{
+			name: "case3",
+			inputs: []string{
+				"1145 1230", "1200 1230", "700 800", "1500 1600",
+				"730 845", "1530 1600", "1900 2000", "1900 2000",
+				"1700 1800", "2000 2200", "2030 2100", "500 600",
+			},
+			want: 2,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			playTimes := []PlayTime{}
+			for _, val := range tt.inputs {
+				items := strings.Split(val, " ")
+				pt, _ := toPlayTime(items[0], items[1])
+				playTimes = append(playTimes, pt)
+			}
+			got := countArcadeMachines(playTimes)
+			if got != tt.want {
+				t.Errorf("countArcadeMachines(%v) got: %v, want: %v", playTimes, got, tt.want)
 			}
 		})
 	}
